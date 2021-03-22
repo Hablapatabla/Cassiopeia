@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package spaceart;
+
+service SpaceArt {
+  rpc DisplayArt(ArtRequest) returns (stream ArtLine) {}
+}
+
+message ArtRequest {
+  string name = 1;
+}
+
+message ArtLine {
+  string line = 1;
+}

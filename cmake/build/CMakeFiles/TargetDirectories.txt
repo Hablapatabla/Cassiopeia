@@ -1,0 +1,4 @@
+/Users/lucas/Code/dcc/little-dipper/cmake/build/CMakeFiles/rebuild_cache.dir
+/Users/lucas/Code/dcc/little-dipper/cmake/build/CMakeFiles/edit_cache.dir
+/Users/lucas/Code/dcc/little-dipper/cmake/build/CMakeFiles/server.dir
+/Users/lucas/Code/dcc/little-dipper/cmake/build/CMakeFiles/client.dir
