@@ -30,11 +30,9 @@ class SpaceArtServer final : public SpaceArt::Service {
     std::string art_name = request->name();
     std::string art_file_name = "../../art/" + art_name + ".txt";
     std::ifstream art_file(art_file_name);
-    count++;
     std::string span_name = "Art-span" + std::to_string(count);
     auto span = get_tracer("Cassiopeia-server")->StartSpan(span_name);
     auto scope = get_tracer("Cassiopeia-server")->WithActiveSpan(span);
-
 
     if (!art_file.is_open()) {
       std::cout << "Couldn't open file" << std::endl;
@@ -50,6 +48,7 @@ class SpaceArtServer final : public SpaceArt::Service {
     }
     art_file.close();
     span->End();
+    count++;
     return Status::OK;
   }
 };
