@@ -1,0 +1,4 @@
+/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/rebuild_cache.dir
+/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/edit_cache.dir
+/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/server.dir
+/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/client.dir

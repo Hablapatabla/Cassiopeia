@@ -5,6 +5,8 @@
 
 #include <string>
 #include <fstream>
+#include <chrono>
+#include <thread>
 #include "spaceart.grpc.pb.h"
 
 using grpc::Server;
@@ -17,7 +19,10 @@ using spaceart::SpaceArt;
 using spaceart::ArtRequest;
 using spaceart::ArtLine;
 
+#include "tracer_common.hpp"
+
 class SpaceArtServer final : public SpaceArt::Service {
+  private : int count = 0;
   Status DisplayArt(ServerContext* context,
                       const spaceart::ArtRequest* request,
                       ServerWriter<ArtLine>* writer) override
@@ -25,6 +30,11 @@ class SpaceArtServer final : public SpaceArt::Service {
     std::string art_name = request->name();
     std::string art_file_name = "../../art/" + art_name + ".txt";
     std::ifstream art_file(art_file_name);
+    count++;
+    std::string span_name = "Art-span" + std::to_string(count);
+    auto span = get_tracer("Cassiopeia-server")->StartSpan(span_name);
+    auto scope = get_tracer("Cassiopeia-server")->WithActiveSpan(span);
+
 
     if (!art_file.is_open()) {
       std::cout << "Couldn't open file" << std::endl;
@@ -33,11 +43,13 @@ class SpaceArtServer final : public SpaceArt::Service {
 
     std::string text_line;
     while (getline(art_file, text_line)) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
       ArtLine artline;
       artline.set_line(text_line);
       writer->Write(artline);
     }
     art_file.close();
+    span->End();
     return Status::OK;
   }
 };
@@ -57,6 +69,11 @@ void RunServer() {
 }
 
 int main(int argc, char** argv) {
+  initTracer();
+  auto root_span = get_tracer("Cassiopeia-server")->StartSpan(__func__);
+  opentelemetry::trace::Scope scope(root_span);
+
   RunServer();
+  root_span->End();
   return 0;
 }
