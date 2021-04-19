@@ -2,8 +2,44 @@ syntax = "proto3";
 
 package spaceart;
 
-service SpaceArt {
-  rpc DisplayArt(ArtRequest) returns (stream ArtLine) {}
+service Presenter {
+  rpc CheckIn(Account) returns (CheckInResponse) {}
+  rpc SubmitAccount(Account) returns (CheckInResponse) {}
+  rpc Present(PresentationToken) returns (stream PresentationLine) {}
+}
+
+service Registrar {
+  rpc Validate(Account) returns (AuthResponse) {}
+  rpc Register(Account) returns (AuthResponse) {}
+}
+
+service Gallery {
+  rpc GetArt(ArtRequest) returns (stream ArtLine) {}
+}
+
+message Account {
+  string username = 1;
+  optional string password = 2;
+}
+
+message PresentationToken {
+  string token = 1;
+}
+
+message PresentationLine {
+  string line = 1;
+}
+
+message CheckInResponse {
+  bool valid = 1;
+  optional bool wrong_password = 2;
+  optional bool new_password_desired = 3;
+  optional string token = 4;
+}
+
+message AuthResponse {
+  bool valid = 1;
+  optional bool wrong_password = 2;
 }
 
 message ArtRequest {

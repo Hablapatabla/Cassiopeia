@@ -69,7 +69,7 @@ find_library(RESOURCES opentelemetry_resources ~/include/lib/libopentelemetry_re
 
 # Targets (client|server)
 foreach(_target
-  client server)
+  viewer presenter registrar gallery)
   add_executable(${_target} "${_target}.cc"
     ${hw_proto_srcs}
     ${hw_grpc_srcs})

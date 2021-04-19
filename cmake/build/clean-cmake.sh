@@ -4,6 +4,8 @@ rm CMakeCache.txt
 rm Makefile
 rm cmake_install.cmake
 rm spaceart*
-rm client
-rm server
+rm registrar
+rm viewer
+rm presenter
+rm gallery
 
