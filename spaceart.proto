@@ -34,12 +34,14 @@ message CheckInResponse {
   bool valid = 1;
   optional bool wrong_password = 2;
   optional bool new_password_desired = 3;
-  optional string token = 4;
+  optional bool user_exists = 4;
+  optional string token = 5;
 }
 
 message AuthResponse {
   bool valid = 1;
   optional bool wrong_password = 2;
+  optional bool user_exists = 3;
 }
 
 message ArtRequest {

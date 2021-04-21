@@ -80,14 +80,14 @@ public:
     span->End();
     if (status.ok()) {
         if (response.valid()) {
-            //mytoken = response.token();
+            mytoken = response.token();
             return "Good";
         } else {
-            if (response.wrong_password()) {
-                return "Wrong";
+            if (response.user_exists()) {
+                return "Exists";
             }
             else {
-                return "New";
+                return "Unknown";
             }
         }
     } else {
@@ -99,7 +99,7 @@ public:
 
 private:
   std::unique_ptr<Presenter::Stub> stub_;
-  //PresentationToken mytoken;
+  std::string mytoken;
 };
 
 
@@ -145,11 +145,17 @@ void RunViewer() {
         pass = GetUsersPass();
         std::string stat = viewer.SubmitAccount(name, pass);
         if (stat.compare("Good") == 0) {
-            std::cout << "You're all good to go! Handing things over to your presenter." << std::endl;
+            std::cout << "You're all good to go! Handing things over to your presenter..." << std::endl;
             viewer.Present();
         }
+        else if (stat.compare("Exists") == 0) {
+            std::cout << "Unfortunately, we already have an account with that name. Let's start over, and please try registering with a different name." << std::endl;
+            span->End();
+            RunViewer();
+        }
         else {
-            std::cout << "STAT NOT GOOD 1" << std::endl;
+            std::cout << "STAT NOT GOOD" << std::endl;
+            span->End();
         }
     }
     else if (input.compare("n") == 0 || input.compare("N") == 0) {
@@ -165,7 +171,7 @@ void RunViewer() {
             pass = GetUsersPass();
             std::string stat = viewer.SubmitAccount(name, pass);
             if (stat.compare("Good") == 0) {
-                std::cout << "You're all good to go! Handing things over to your presenter." << std::endl;
+                std::cout << "You're all good to go! Handing things over to your presenter..." << std::endl;
                 viewer.Present();
             }
             else {
@@ -173,12 +179,12 @@ void RunViewer() {
             }
         }
         else if (stat.compare("Wrong") == 0) {
-            std::cout << "Invalid password. Let's try this again." << std::endl;
+            std::cout << "Invalid password. Let's try starting over." << std::endl;
             span->End();
             RunViewer();
         }
         else if (stat.compare("Good") == 0) {
-            std::cout << "You're all good to go! Handing things over to your presenter." << std::endl;
+            std::cout << "You're all good to go! Handing things over to your presenter..." << std::endl << std::endl;
             viewer.Present();
         }
     }

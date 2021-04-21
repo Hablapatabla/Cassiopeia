@@ -7,6 +7,7 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
+#include <filesystem> //DELETE THIS
 #include "spaceart.grpc.pb.h"
 
 using grpc::Server;
@@ -32,8 +33,32 @@ class RegistrarServer final : public Registrar::Service {
         std::string span_name = "Registrar Service - Validate RPC";
         auto span = get_tracer("Registrar")->StartSpan(span_name);
         auto scope = get_tracer("Registrar")->WithActiveSpan(span);
-        std::cout << "Stubbed" << std::endl;
-        response->set_valid(true);
+
+        RegistryStatus rs = check_account(account->username(), account->password());
+        switch(rs) {
+          case Valid : 
+            {
+              response->set_valid(true);
+              break;
+            }
+          case Invalid :
+            {
+              response->set_valid(false);
+              break;
+            }
+          case Password :
+            {
+              response->set_valid(false);
+              response->set_wrong_password(true);
+              break;
+            }
+          default :
+            {
+              std::cout << "Invalid enumeration type returned" << std::endl;
+              break;
+            }
+        }
+        
         span->End();
         return Status::OK;
     }
@@ -45,11 +70,98 @@ class RegistrarServer final : public Registrar::Service {
         std::string span_name = "Registrar Service - Register RPC";
         auto span = get_tracer("Gallery")->StartSpan(span_name);
         auto scope = get_tracer("Gallery")->WithActiveSpan(span);
-        std::this_thread::sleep_for(std::chrono::milliseconds(4000));
-        std::cout << "Stubbed" << std::endl;
-        response->set_valid(true);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1800));
+
+        RegistryStatus rs = check_if_user_already_exists(account->username());
+        switch (rs) {
+          case Valid :
+            {
+              std::stringstream ss;
+              ss << account->username() << ' ' << account->password() << std::endl;
+              std::ofstream registrar_file;
+              registrar_file.open(registrar_path, std::ios::app);
+              if (registrar_file.is_open()) {
+                  registrar_file << ss.rdbuf();
+                  registrar_file.close();
+              }
+              else {
+                std::cout << "Couldn't open registry" << std::endl;
+              }
+              response->set_valid(true);
+              break;
+            }
+          case Exists :
+            {
+              response->set_valid(false);
+              response->set_user_exists(true);
+              break;
+            }
+          default :
+            {
+              response->set_valid(false);
+              break;
+            }
+        }
+
         span->End();
         return Status::OK;
+    }
+  private:
+    enum RegistryStatus { Valid, Invalid, Password, Exists };
+    const std::string registrar_path = "../../registry/registry.txt";
+
+    RegistryStatus check_if_user_already_exists(std::string account_user) {
+      std::string line;
+      std::string user;
+      std::string pass;
+      std::ifstream file;
+      file.open(registrar_path);
+
+      if (file.is_open()) {
+          while (getline(file, line)) {
+              std::stringstream ss(line);
+              getline(ss, user, ' ');
+              getline(ss, pass, '\n');
+              
+              if (user.compare(account_user) == 0) {
+                  file.close();
+                  return Exists;
+              }
+          }
+      }
+      file.close();
+      return Valid;
+    }
+
+    RegistryStatus check_account(std::string account_user, std::string account_pass) {
+        std::string user;
+        std::string pass;
+        std::string line;
+
+        std::ifstream registrar_file;
+        registrar_file.open(registrar_path);
+
+        if (registrar_file.is_open()) {
+            while (getline(registrar_file, line)) {
+                std::stringstream ss(line);
+                getline(ss, user, ' ');
+                getline(ss, pass, '\n');
+
+                if (user.compare(account_user) == 0) {
+                    if (pass.compare(account_pass) == 0) {
+                      registrar_file.close();
+                      return Valid;
+                    }
+                    else {
+                      registrar_file.close();
+                      return Password;
+                    }
+                }
+            }
+        }
+        registrar_file.close();
+        return Invalid;
     }
 };
 
