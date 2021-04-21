@@ -101,8 +101,21 @@ public :
                         const Account* account,
                         CheckInResponse* reply) override
     {
-        std::string span_name = "Presenter Service - CheckIn RPC";
-        auto span = get_tracer("Presenter")->StartSpan(span_name);
+        opentelemetry::trace::StartSpanOptions options;
+        options.kind = opentelemetry::trace::SpanKind::kServer;
+        std::string span_name = "Presenter/CheckIn";
+        auto span = get_tracer("Presenter")
+                        ->StartSpan(span_name,
+                                {
+                                    {"name", ""}
+                                    {"rpc.system", "grpc"},
+                                    {"rpc.service", "presenter"},
+                                    {"rpc.method", "CheckIn"},
+                                    {"rpc.net.peer.ip", "localhost"},
+                                    {"rpc.net.peer.port", 50052},
+                                    {"rpc.net.peer.transport", "ip_tcp"},
+                                    {"rpc.grpc.status_code", 0}},
+                                options);
         auto scope = get_tracer("Presenter")->WithActiveSpan(span);
         std::string username = account->username();
         std::string password = account->password();
@@ -168,7 +181,7 @@ public :
         auto span = get_tracer("Presenter")->StartSpan(span_name);
         auto scope = get_tracer("Presenter")->WithActiveSpan(span);
         GalleryClient client(grpc::CreateChannel(gallery_port, grpc::InsecureChannelCredentials()));
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        presenter_sleep(2000);
         PresentationLine narrator;
         PresentationLine line;
         std::string clear_screen = std::string(100, '\n');
@@ -182,178 +195,178 @@ public :
         writer->Write(presentation_clear);
 
         narrator.set_line("Welcome to the galaxy. Let's take a look at the stars!\n\n\nOne moment while we get your telescope set up...\n\n");
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+        presenter_sleep(3000);
         writer->Write(narrator);
         writer->Write(presentation_break);
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        presenter_sleep(2000);
 
         std::vector<std::string> telescope = client.GetArt("astronomer");
         for (auto s : telescope) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            presenter_sleep(300);
             line.set_line(s);
             writer->Write(line);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         narrator.set_line("Excellent. Now, let's try focusing that telescope on the north sky...");
         writer->Write(narrator);
-        std::this_thread::sleep_for(std::chrono::milliseconds(4000));
+        presenter_sleep(4000);
         writer->Write(presentation_break);
         std::vector<std::string> dipper = client.GetArt("dipper");
         for (auto s : dipper) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(150));
+            presenter_sleep(150);
             line.set_line(s);
             writer->Write(line);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        presenter_sleep(500);
         line.set_line("\n\nDo you see those? They're the Big and Little dippers.\n\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        presenter_sleep(2000);
         line.set_line("In early myths, the seven stars of the Little Dipper represented the Hesperides, the nymphs tasked with guarding Hera's orchard.\n\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("However, the nymphs would pluck immortality-granting apples from the orchard, and Hera placed the one-hundred-headed ever-awake dragon Ladon to watch them.\n\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("Ladon can be found to this day as the constellation Draco, which neighbors the Little Dipper, ever watchful.\n\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("That's enough about constellations.\n\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        presenter_sleep(2000);
         writer->Write(presentation_break);
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        presenter_sleep(300);
 
         std::vector<std::string> earth = client.GetArt("earth");
         for (auto s : earth) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            presenter_sleep(300);
             line.set_line(s);
             writer->Write(line);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        presenter_sleep(500);
         line.set_line("We'll make a quick scenic stop at Titan, Saturn's largest moon.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         writer->Write(presentation_break);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        presenter_sleep(200);
 
         std::vector<std::string> titan = client.GetArt("titan");
         for (auto s : titan) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            presenter_sleep(300);
             line.set_line(s);
             writer->Write(line);
         }
         writer->Write(presentation_break);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         line.set_line("Titan is hugged by a thick, orange-colored smog-like atmosphere, and is the only moon in the solar system with a thick atmosphere.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("This atmosphere is so thick that at the surface of Titan, the atmospheric pressure is comparable to the pressure felt while swimming 15 meters under the ocean.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("This atmosphere is mostly composed of nitrogen and methane. The methane can condense into clouds that will drench the surface in methane storms.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("Vast, dark sand dunes composed of hydrocarbon grains stretch across Titan's landscape. These tall dunes are visually not unlike those in the deserts of our own Namibia.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("Despite this seeming inhospitality, Titan represents an incredibly unique opportunity in our solar system.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("The Cassini spacecraft has detected that Titan is likely hiding an underground ocean of liquid water.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("This global ocean may lie 35 to 50 miles underneath the icy ground. Naturally, this is intriguing to many.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(7500));
+        presenter_sleep(7500);
         line.set_line("But that's enough about Titan. Onwards and upwards!.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        presenter_sleep(2000);
         writer->Write(presentation_clear);
         line.set_line("Exiting Titan's gravity.\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         writer->Write(presentation_break);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         line.set_line("Exiting our solar system. There's the sun way over there!\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         std::vector<std::string> sun = client.GetArt("sun");
         for (auto s : sun) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            presenter_sleep(200);
             line.set_line(s);
             writer->Write(line);
         }
         line.set_line("Engaging warp speed..........\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        presenter_sleep(500);
         line.set_line("\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        presenter_sleep(500);
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(450));
+        presenter_sleep(450);
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(400));
+        presenter_sleep(400);
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(330));
+        presenter_sleep(330);
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(220));
+        presenter_sleep(220);
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        presenter_sleep(100);
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        presenter_sleep(100);
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        presenter_sleep(100);
         writer->Write(presentation_clear);
         
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+        presenter_sleep(3000);
         PresentationLine zoom_out;
         zoom_out.set_line("Now we can get one good look at the big picture.\n\n");
         writer->Write(zoom_out);
         writer->Write(presentation_break);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
 
         std::vector<std::string> space = client.GetArt("space");
 
         for (auto s : space) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            presenter_sleep(300);
             line.set_line(s);
             writer->Write(line);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(4000));
+        presenter_sleep(4000);
         
         line.set_line("Thank yor for experiencing Cassiopeia.\n\n");
         writer->Write(line);
         line.set_line("https://github.com/Hablapatabla/little-dipper\n\n");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        presenter_sleep(100);
 
         line.set_line("All art is from: https://www.asciiart.eu/space.\n\nArt credits in particular go to:");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         line.set_line("Telescope - ejm97");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         line.set_line("The Two Dippers - Ojo");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         line.set_line("Saturn as seen from Titan - Robert Casey");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         line.set_line("Earth - JT");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         line.set_line("Sun - jgs");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         line.set_line("Universe - unknown");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        presenter_sleep(5000);
         writer->Write(presentation_break);
         line.set_line("We are just an advanced breed of monkeys on a minor planet of a very average star. But we can understand the Universe. That makes us something very special.\n\t-Stephen Hawking");
         writer->Write(line);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        presenter_sleep(1000);
         
         span->End(); 
         return Status::OK;
@@ -362,6 +375,10 @@ public :
         std::string pass =                 "eggsbenedict";
         const std::string registrar_port = "0.0.0.0:50053";
         const std::string gallery_port =   "0.0.0.0:50054";
+
+        void presenter_sleep(int duration) {
+            std::this_thread::sleep_for(duration);
+        }
 };
 
 
