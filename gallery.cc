@@ -15,27 +15,30 @@ using grpc::ServerContext;
 using grpc::Status;
 using grpc::ServerWriter;
 
-using spaceart::SpaceArt;
-using spaceart::ArtRequest;
+using spaceart::Presenter;
+using spaceart::Account;
+using spaceart::Gallery;
+using spaceart::CheckInResponse;
+using spaceart::PresentationToken;
+using spaceart::PresentationLine;
 using spaceart::ArtLine;
+using spaceart::ArtRequest;
 
 #include "tracer_common.hpp"
 
-class SpaceArtServer final : public SpaceArt::Service {
-  private : int count = 0;
-  Status DisplayArt(ServerContext* context,
+class GalleryServer final : public Gallery::Service {
+public:
+  Status GetArt(ServerContext* context,
                       const spaceart::ArtRequest* request,
                       ServerWriter<ArtLine>* writer) override
   {
     std::string art_name = request->name();
     std::string art_file_name = "../../art/" + art_name + ".txt";
     std::ifstream art_file(art_file_name);
-    count++;
-    std::string span_name = "Art-span" + std::to_string(count);
-    auto span = get_tracer("Cassiopeia-server")->StartSpan(span_name);
-    auto scope = get_tracer("Cassiopeia-server")->WithActiveSpan(span);
-
-
+    std::string span_name = "Gallery Service - GetArt RPC - " + art_name;
+    auto span = get_tracer("Gallery")->StartSpan(span_name);
+    auto scope = get_tracer("Gallery")->WithActiveSpan(span);
+   
     if (!art_file.is_open()) {
       std::cout << "Couldn't open file" << std::endl;
       return grpc::Status(grpc::StatusCode::NOT_FOUND, "Could not find art with that name");
@@ -43,7 +46,6 @@ class SpaceArtServer final : public SpaceArt::Service {
 
     std::string text_line;
     while (getline(art_file, text_line)) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
       ArtLine artline;
       artline.set_line(text_line);
       writer->Write(artline);
@@ -56,8 +58,8 @@ class SpaceArtServer final : public SpaceArt::Service {
 
 
 void RunServer() {
-  std::string address("0.0.0.0:50051");
-  SpaceArtServer service;
+  std::string address("0.0.0.0:50054");
+  GalleryServer service;
   ServerBuilder builder;
 
   builder.AddListeningPort(address, grpc::InsecureServerCredentials());
@@ -70,9 +72,8 @@ void RunServer() {
 
 int main(int argc, char** argv) {
   initTracer();
-  auto root_span = get_tracer("Cassiopeia-server")->StartSpan(__func__);
+  auto root_span = get_tracer("Gallery")->StartSpan(__func__);
   opentelemetry::trace::Scope scope(root_span);
-
   RunServer();
   root_span->End();
   return 0;

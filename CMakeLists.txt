@@ -27,7 +27,7 @@ set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 get_filename_component(hw_proto "spaceart.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
-set(opentelemetry-cpp_DIR ~/include/lib/cmake/opentelemetry-cpp)
+#set(opentelemetry-cpp_DIR ~/include/lib/cmake/opentelemetry-cpp)
 find_package(opentelemetry-cpp REQUIRED)
 
 # Generated sources
@@ -49,27 +49,25 @@ add_custom_command(
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
-message(STATUS "SOURCE DIR: ${CMAKE_SOURCE_DIR}")
-message(STATUS "OPEN INCLUDE DIR: ${OPENTELEMETRY_CPP_INCLUDE_DIRS}")
+#set(CMAKE_LIBRARY_PATH ~/include/lib/)
 
-set(CMAKE_LIBRARY_PATH ~/include/lib/)
+#set(MY_INCLUDES "/Users/lucas/include/include")
+#include_directories(${MY_INCLUDES})
 
-set(MY_INCLUDES "/Users/lucas/include/include")
-include_directories(${MY_INCLUDES})
+#set(INCLUDE_RANDOM "/Users/lucas/source/opentelemetry-cpp/sdk/src/common/")
+#include_directories(${INCLUDE_RANDOM})
 
-set(INCLUDE_RANDOM "/Users/lucas/source/opentelemetry-cpp/sdk/src/common/")
-include_directories(${INCLUDE_RANDOM})
-
-find_library(TRACE opentelemetry_trace ~/include/lib/libopentelemetry_trace.a)
-find_library(EXPORT opentelemetry_exporter_ostream_span ~/include/lib/libopentelemetry_exporter_ostream_span.a)
-find_library(COMMON opentelemetry_common ~/include/lib/libopentelemetry_common.a)
-find_library(RESOURCES opentelemetry_resources ~/include/lib/libopentelemetry_resources.a)
+#find_library(TRACE opentelemetry_trace ~/include/lib/libopentelemetry_trace.a)
+#find_library(EXPORT opentelemetry_exporter_ostream_span ~/include/lib/#libopentelemetry_exporter_ostream_span.a)
+#find_library(COMMON opentelemetry_common ~/include/lib/libopentelemetry_common.a)
+#find_library(RESOURCES opentelemetry_resources ~/include/lib/libopentelemetry_resources.a)
 
 
 
 # Targets (client|server)
 foreach(_target
-  client server)
+  viewer presenter registrar gallery)
+  target_include_directories(${_target} PRIVATE ${OPENTELEMETRY_CPP_INCLUDE_DIRS})
   add_executable(${_target} "${_target}.cc"
     ${hw_proto_srcs}
     ${hw_grpc_srcs})
@@ -80,5 +78,7 @@ foreach(_target
     ${TRACE}
     ${EXPORT}
     ${COMMON}
-    ${RESOURCES})
+    ${RESOURCES}
+    ${OPENTELEMETRY_CPP_LIBRARIES}
+)
 endforeach()
