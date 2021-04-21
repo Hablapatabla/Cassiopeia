@@ -5,46 +5,46 @@ Cassiopeia requires OpenTelemetry to be installed on your machine in order to wo
 
 ### Installing Dependencies
 On a Mac, you can use Homebrew to install all required dependencies.
-'''brew install grpc'''
+```brew install grpc```
 
-'''brew install protobuf'''
+```brew install protobuf```
 
-'''brew install cmake'''
+```brew install cmake```
 
-'''brew install google-benchmark'''
+```brew install google-benchmark```
 
-'''brew tap nlohmann/json'''
+```brew tap nlohmann/json```
 
-'''brew install nlohmann-json'''
+```brew install nlohmann-json```
 
 Follow the instructions [here](https://github.com/open-telemetry/opentelemetry-cpp/blob/main/INSTALL.md) to install OpenTelemetry.
 
 ### Installing
 Start off by cloning this repository wherever you may like. If you are unsure where to place it you can try:
 
-'''cd ~'''
+```cd ~```
 
-'''mkdir source && cd source'''
+```mkdir source && cd source```
 
-'''gh repo clone Hablapatabla/little-dipper'''
+```gh repo clone Hablapatabla/little-dipper```
 
 
 ### Building
 Navigate to the /cmake/build directory from the root directory.
 
-'''cd little-dipper'''
+```cd little-dipper```
 
-'''cd cmake/build'''
+```cd cmake/build```
 
 If the directory has anything in it other than clean-cmake.sh, run:
 
-'''bash clean-cmake.sh'''
+```bash clean-cmake.sh```
 
 Now, you can build the project using CMake. You should be able to simply run:
 
-'''cmake ../..'''
+```cmake ../..```
 
-'''make'''
+```make```
 
 If the project built successfully, you should have four executables:
 ./viewer    ./presenter     ./registrar     ./gallery
