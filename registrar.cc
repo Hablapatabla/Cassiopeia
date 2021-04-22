@@ -30,9 +30,23 @@ class RegistrarServer final : public Registrar::Service {
                       const Account* account,
                       AuthResponse* response) override
     {
-        std::string span_name = "Registrar Service - Validate RPC";
-        auto span = get_tracer("Registrar")->StartSpan(span_name);
-        auto scope = get_tracer("Registrar")->WithActiveSpan(span);
+        opentelemetry::trace::StartSpanOptions options;
+        options.kind = opentelemetry::trace::SpanKind::kServer;
+        std::string span_name = "Registrar/Validate";
+        auto span = get_tracer("registrar")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Registrar"},
+                                 {"rpc.method", "Validate"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50053},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0},
+                                 {"account.username", account->username()},
+                                 {"account.password", account->password()}},
+                                options);
+        auto scope = get_tracer("registrar")->WithActiveSpan(span);
 
         RegistryStatus rs = check_account(account->username(), account->password());
         switch(rs) {
@@ -67,9 +81,21 @@ class RegistrarServer final : public Registrar::Service {
                       const Account* account,
                       AuthResponse* response) override
     {
-        std::string span_name = "Registrar Service - Register RPC";
-        auto span = get_tracer("Gallery")->StartSpan(span_name);
-        auto scope = get_tracer("Gallery")->WithActiveSpan(span);
+        opentelemetry::trace::StartSpanOptions options;
+        options.kind = opentelemetry::trace::SpanKind::kServer;
+        std::string span_name = "Registrar/Register";
+        auto span = get_tracer("registrar")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Registrar"},
+                                 {"rpc.method", "Register"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50053},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0}},
+                                options);
+        auto scope = get_tracer("registrar")->WithActiveSpan(span);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1800));
 

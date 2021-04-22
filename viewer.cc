@@ -107,7 +107,7 @@ std::string GetUsersName() {
     std::string span_name = "Viewer Client - Get User Username";
     auto span = get_tracer("Viewer")->StartSpan(span_name);
     auto scope = get_tracer("Viewer")->WithActiveSpan(span);
-    std::cout << "Let's start with a name. Enter a name that you'll remember now: " << std::endl;
+    std::cout << "Let's start with a name. Enter a name that you'll remember now (please no whitespace characters!): " << std::endl;
     std::string name;
     std::cin >> name;
     span->End();
@@ -118,7 +118,7 @@ std::string GetUsersPass() {
     std::string span_name = "Viewer Client - Get User Password";
     auto span = get_tracer("Viewer")->StartSpan(span_name);
     auto scope = get_tracer("Viewer")->WithActiveSpan(span);
-    std::cout << "Next, set a password that you think you'll remember: " << std::endl;
+    std::cout << "Next, set a password that you think you'll remember (please no whitespace characters!): " << std::endl;
     std::string pass;
     std::cin >> pass;
     span->End();

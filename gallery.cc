@@ -35,20 +35,54 @@ public:
     std::string art_name = request->name();
     std::string art_file_name = "../../art/" + art_name + ".txt";
     std::ifstream art_file(art_file_name);
-    std::string span_name = "Gallery Service - GetArt RPC - " + art_name;
-    auto span = get_tracer("Gallery")->StartSpan(span_name);
-    auto scope = get_tracer("Gallery")->WithActiveSpan(span);
-   
+
+    opentelemetry::trace::StartSpanOptions options;
+    options.kind = opentelemetry::trace::SpanKind::kServer;
+    std::string span_name = "Gallery/GetArt";
+    auto span = get_tracer("gallery")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Gallery"},
+                                 {"rpc.method", "GetArt"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50054},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0},
+                                 {"code.lineno", 52},
+                                 {"art.filename", art_file_name}},
+                                options);
+    auto scope = get_tracer("gallery")->WithActiveSpan(span);
+
     if (!art_file.is_open()) {
       std::cout << "Couldn't open file" << std::endl;
       return grpc::Status(grpc::StatusCode::NOT_FOUND, "Could not find art with that name");
     }
 
     std::string text_line;
+    int line_counter = 1;
     while (getline(art_file, text_line)) {
+      std::string span_name = "Gallery/GetArt.line";
+      auto line_span = get_tracer("gallery")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Gallery"},
+                                 {"rpc.method", "GetArt.line"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50054},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0},
+                                 {"code.lineno", 79},
+                                 {"art.linenum", line_counter}},
+                                options);
+      auto scope = get_tracer("gallery")->WithActiveSpan(line_span);
       ArtLine artline;
       artline.set_line(text_line);
       writer->Write(artline);
+      line_span->End();
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      line_counter++;
     }
     art_file.close();
     span->End();

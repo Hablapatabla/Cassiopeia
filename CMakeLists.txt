@@ -27,8 +27,9 @@ set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 get_filename_component(hw_proto "spaceart.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
 
-#set(opentelemetry-cpp_DIR ~/include/lib/cmake/opentelemetry-cpp)
-find_package(opentelemetry-cpp REQUIRED)
+# set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake")
+# set(opentelemetry-cpp_DIR ~/include/lib/cmake/opentelemetry-cpp)
+find_package(opentelemetry-cpp CONFIG REQUIRED)
 
 # Generated sources
 set(hw_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/spaceart.pb.cc")
@@ -58,27 +59,29 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 #include_directories(${INCLUDE_RANDOM})
 
 #find_library(TRACE opentelemetry_trace ~/include/lib/libopentelemetry_trace.a)
-#find_library(EXPORT opentelemetry_exporter_ostream_span ~/include/lib/#libopentelemetry_exporter_ostream_span.a)
+#find_library(EXPORT opentelemetry_exporter_ostream_span ~/include/lib/libopentelemetry_exporter_ostream_span.a)
 #find_library(COMMON opentelemetry_common ~/include/lib/libopentelemetry_common.a)
 #find_library(RESOURCES opentelemetry_resources ~/include/lib/libopentelemetry_resources.a)
 
+#${TRACE}
+#${EXPORT}
+#${COMMON}
+#${RESOURCES}
 
+#target_include_directories(foo PRIVATE ${OPENTELEMETRY_CPP_INCLUDE_DIRS})
+#target_link_libraries(foo PRIVATE ${OPENTELEMETRY_CPP_LIBRARIES})
 
 # Targets (client|server)
 foreach(_target
   viewer presenter registrar gallery)
-  target_include_directories(${_target} PRIVATE ${OPENTELEMETRY_CPP_INCLUDE_DIRS})
   add_executable(${_target} "${_target}.cc"
     ${hw_proto_srcs}
     ${hw_grpc_srcs})
+  target_include_directories(${_target} PRIVATE ${OPENTELEMETRY_CPP_INCLUDE_DIRS})
   target_link_libraries(${_target}
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
     ${PROTOBUF_LIBRARY}
-    ${TRACE}
-    ${EXPORT}
-    ${COMMON}
-    ${RESOURCES}
     ${OPENTELEMETRY_CPP_LIBRARIES}
-)
+    )
 endforeach()

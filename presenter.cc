@@ -39,12 +39,23 @@ public:
   RegistrarClient(std::shared_ptr<Channel> channel) : stub_(Registrar::NewStub(channel)) {}
 
     AuthResponse Validate(Account account) {
-        std::string span_name = "Registrar Client - Validate RPC";
-        auto span = get_tracer("Presenter")->StartSpan(span_name);
-        auto scope = get_tracer("Presenter")->WithActiveSpan(span);
+        opentelemetry::trace::StartSpanOptions options;
+        options.kind = opentelemetry::trace::SpanKind::kClient;
+        std::string span_name = "Presenter/Validate";
+        auto span = get_tracer("presenter")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Presenter"},
+                                 {"rpc.method", "Validate"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50052},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0}},
+                                options);
+        auto scope = get_tracer("presenter")->WithActiveSpan(span);
         ClientContext context;
         AuthResponse response;
-        std::cout << " SENDING TO VALIDATE " << std::endl;
 
         Status status = stub_->Validate(&context, account, &response);
         span->End();
@@ -52,8 +63,20 @@ public:
     }
 
     AuthResponse Register(Account account) {
-        std::string span_name = "Registrar Client - Register RPC";
-        auto span = get_tracer("Presenter")->StartSpan(span_name);
+        opentelemetry::trace::StartSpanOptions options;
+        options.kind = opentelemetry::trace::SpanKind::kClient;
+        std::string span_name = "Presenter/Register";
+        auto span = get_tracer("presenter")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Presenter"},
+                                 {"rpc.method", "Register"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50052},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0}},
+                                options);
         auto scope = get_tracer("Presenter")->WithActiveSpan(span);
         ClientContext context;
         AuthResponse response;
@@ -73,9 +96,21 @@ public:
   GalleryClient(std::shared_ptr<Channel> channel) : stub_(Gallery::NewStub(channel)) {}
 
     std::vector<std::string> GetArt(std::string name) {
-        std::string span_name = "Gallery Client - GetArt RPC";
-        auto span = get_tracer("Presenter")->StartSpan(span_name);
-        auto scope = get_tracer("Presenter")->WithActiveSpan(span);
+        opentelemetry::trace::StartSpanOptions options;
+        options.kind = opentelemetry::trace::SpanKind::kClient;
+        std::string span_name = "Presenter/GetArt";
+        auto span = get_tracer("presenter")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Presenter"},
+                                 {"rpc.method", "GetArt"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50052},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0}},
+                                options);
+        auto scope = get_tracer("presenter")->WithActiveSpan(span);
         std::vector<std::string> v;
         ClientContext context;
         ArtRequest request;
@@ -105,16 +140,15 @@ public :
         options.kind = opentelemetry::trace::SpanKind::kServer;
         std::string span_name = "Presenter/CheckIn";
         auto span = get_tracer("Presenter")
-                        ->StartSpan(span_name,
-                                {
-                                    {"name", ""}
-                                    {"rpc.system", "grpc"},
-                                    {"rpc.service", "presenter"},
-                                    {"rpc.method", "CheckIn"},
-                                    {"rpc.net.peer.ip", "localhost"},
-                                    {"rpc.net.peer.port", 50052},
-                                    {"rpc.net.peer.transport", "ip_tcp"},
-                                    {"rpc.grpc.status_code", 0}},
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Presenter"},
+                                 {"rpc.method", "CheckIn"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50052},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0}},
                                 options);
         auto scope = get_tracer("Presenter")->WithActiveSpan(span);
         std::string username = account->username();
@@ -157,9 +191,21 @@ public :
                         const Account* account,
                         CheckInResponse* reply) override
     {
-        std::string span_name = "Presenter Service - SubmitAccount RPC";
-        auto span = get_tracer("Presenter")->StartSpan(span_name);
-        auto scope = get_tracer("Presenter")->WithActiveSpan(span);
+        opentelemetry::trace::StartSpanOptions options;
+        options.kind = opentelemetry::trace::SpanKind::kServer;
+        std::string span_name = "Presenter/SubmitAccount";
+        auto span = get_tracer("presenter")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Presenter"},
+                                 {"rpc.method", "SubmitAccount"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50052},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0}},
+                                options);
+        auto scope = get_tracer("presenter")->WithActiveSpan(span);
         RegistrarClient client(grpc::CreateChannel(registrar_port, grpc::InsecureChannelCredentials()));
         AuthResponse ar = client.Register(*account);
         if (ar.valid()) {
@@ -177,9 +223,24 @@ public :
                         const PresentationToken* pt,
                         ServerWriter<PresentationLine>* writer) override
     {   
-        std::string span_name = "Presenter Service - Present RPC";
-        auto span = get_tracer("Presenter")->StartSpan(span_name);
+        opentelemetry::trace::StartSpanOptions options;
+        options.kind = opentelemetry::trace::SpanKind::kServer;
+        std::string span_name = "Presenter/Present";
+        auto span = get_tracer("Presenter")
+                    ->StartSpan(span_name,
+                                {{"rpc.system", "grpc"},
+                                 {"rpc.service", "cassiopeia.Presenter"},
+                                 {"rpc.method", "Present"},
+                                 {"rpc.net.peer.ip", "localhost"},
+                                 {"rpc.net.peer.port", 50052},
+                                 {"rpc.net.peer.name", "localhost"},
+                                 {"rpc.net.peer.transport", "ip_tcp"},
+                                 {"rpc.grpc.status_code", 0},
+                                 {"hotel?", "trivago"}},
+                                options);
         auto scope = get_tracer("Presenter")->WithActiveSpan(span);
+
+
         GalleryClient client(grpc::CreateChannel(gallery_port, grpc::InsecureChannelCredentials()));
         presenter_sleep(2000);
         PresentationLine narrator;
@@ -198,7 +259,7 @@ public :
         presenter_sleep(3000);
         writer->Write(narrator);
         writer->Write(presentation_break);
-        presenter_sleep(2000);
+        presenter_sleep(500);
 
         std::vector<std::string> telescope = client.GetArt("astronomer");
         for (auto s : telescope) {
@@ -210,7 +271,7 @@ public :
         presenter_sleep(1000);
         narrator.set_line("Excellent. Now, let's try focusing that telescope on the north sky...");
         writer->Write(narrator);
-        presenter_sleep(4000);
+        presenter_sleep(2000);
         writer->Write(presentation_break);
         std::vector<std::string> dipper = client.GetArt("dipper");
         for (auto s : dipper) {
@@ -231,9 +292,9 @@ public :
         line.set_line("Ladon can be found to this day as the constellation Draco, which neighbors the Little Dipper, ever watchful.\n\n\n");
         writer->Write(line);
         presenter_sleep(7500);
-        line.set_line("That's enough about constellations.\n\n\n");
+        line.set_line("That's enough about constellations. Let's head towards the stars rather than keep looking at them. There's our Earth!\n\n\n");
         writer->Write(line);
-        presenter_sleep(2000);
+        presenter_sleep(1000);
         writer->Write(presentation_break);
         presenter_sleep(300);
 
@@ -243,10 +304,12 @@ public :
             line.set_line(s);
             writer->Write(line);
         }
-        presenter_sleep(500);
+        presenter_sleep(1000);
+        writer->Write(presentation_break);
+        presenter_sleep(300);
         line.set_line("We'll make a quick scenic stop at Titan, Saturn's largest moon.\n\n");
         writer->Write(line);
-        presenter_sleep(1000);
+        presenter_sleep(200);
         writer->Write(presentation_break);
         presenter_sleep(200);
 
@@ -290,7 +353,7 @@ public :
         presenter_sleep(1000);
         line.set_line("Exiting our solar system. There's the sun way over there!\n\n");
         writer->Write(line);
-        presenter_sleep(1000);
+        presenter_sleep(300);
         std::vector<std::string> sun = client.GetArt("sun");
         for (auto s : sun) {
             presenter_sleep(200);
@@ -320,12 +383,12 @@ public :
         writer->Write(presentation_clear);
         
 
-        presenter_sleep(3000);
+        presenter_sleep(1500);
         PresentationLine zoom_out;
         zoom_out.set_line("Now we can get one good look at the big picture.\n\n");
         writer->Write(zoom_out);
         writer->Write(presentation_break);
-        presenter_sleep(1000);
+        presenter_sleep(400);
 
         std::vector<std::string> space = client.GetArt("space");
 
@@ -377,7 +440,8 @@ public :
         const std::string gallery_port =   "0.0.0.0:50054";
 
         void presenter_sleep(int duration) {
-            std::this_thread::sleep_for(duration);
+            auto dur = std::chrono::milliseconds(duration);
+            std::this_thread::sleep_for(dur);
         }
 };
 
