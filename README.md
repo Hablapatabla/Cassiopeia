@@ -26,13 +26,13 @@ Start off by cloning this repository wherever you may like. If you are unsure wh
 
 ```mkdir source && cd source```
 
-```gh repo clone Hablapatabla/little-dipper```
+```gh repo clone Hablapatabla/Cassiopeia```
 
 
 ### Building
 Navigate to the /cmake/build directory from the root directory.
 
-```cd little-dipper```
+```cd Cassiopeia```
 
 ```cd cmake/build```
 

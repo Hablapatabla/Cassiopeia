@@ -1,0 +1,86 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "spaceart",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "gallery::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gallery-Debug-309bf1bbcd4176bdd5e6.json",
+					"name" : "gallery",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "presenter::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-presenter-Debug-e63edf7f7756f1fc17db.json",
+					"name" : "presenter",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "registrar::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-registrar-Debug-b100865b175e4f06ca4a.json",
+					"name" : "registrar",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "viewer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-viewer-Debug-4f82ce90c1121aacf10f.json",
+					"name" : "viewer",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/lucas/Code/DCC/cassiopeia/build",
+		"source" : "/Users/lucas/Code/DCC/cassiopeia"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 2
+	}
+}

@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+8728bb86ead7f1ec07e627d8ffd7f31d spaceart.pb.cc
