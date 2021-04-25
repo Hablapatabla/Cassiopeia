@@ -1,6 +1,0 @@
-/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/rebuild_cache.dir
-/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/edit_cache.dir
-/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/gallery.dir
-/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/registrar.dir
-/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/presenter.dir
-/Users/lucas/Code/DCC/cassiopeia/build/CMakeFiles/viewer.dir
