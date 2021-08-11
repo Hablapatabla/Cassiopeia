@@ -17,6 +17,8 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 # Protobuf-compiler
 set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 
+# Test change
+
 # gRPC
 find_package(gRPC REQUIRED)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
